@@ -12,6 +12,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.sql.PseudoColumnUsage;
+
 /*
 	@WebMvcTest 
 	Web과 관련된 bean만 등록시켜서 테스트한다.
@@ -32,18 +34,20 @@ public class SampleControllerTest {
 	@Autowired
 	MockMvc mockMvc;
 	
-	@Test
-	public void hello() throws Exception {
-		this.mockMvc.perform(MockMvcRequestBuilders.get("/hello/keesun"))
-				.andDo(MockMvcResultHandlers.print())
-				.andExpect(MockMvcResultMatchers.content().string("hello keesun"));
-	}
+	@Autowired
+	PersonRepository personRepository;
 	
 	@Test
-	public void helloRequestParam() throws Exception {
+	public void hello() throws Exception {
+		
+		Person person = new Person();
+		person.setName("sseob 입니다.");
+
+		Person savedPerson = personRepository.save(person);
+		
 		this.mockMvc.perform(MockMvcRequestBuilders.get("/hello")
-						.param("name", "sseob입니다."))
+						.param("id", savedPerson.getId().toString()))
 				.andDo(MockMvcResultHandlers.print())
-				.andExpect(MockMvcResultMatchers.content().string("hello sseob입니다."));
+				.andExpect(MockMvcResultMatchers.content().string("hello sseob 입니다."));
 	}
 }
