@@ -2,11 +2,14 @@ package me.sseob.demobootweb;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.format.FormatterRegistry;
-import org.springframework.web.servlet.HandlerMapping;
+import org.springframework.http.CacheControl;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
+import javax.swing.plaf.TreeUI;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -22,4 +25,38 @@ public class WebConfig implements WebMvcConfigurer {
 //	public void addFormatters(FormatterRegistry registry) {
 //		registry.addFormatter(new PersonFormatter());
 //	}
+
+	/*
+		preHandle 1
+		preHandle 2
+		요청처리
+		postHandler 2
+		postHandler 1
+		view rendering
+		afterCompletion 2
+		afterCompletion 1
+	 */
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(new GreetingInterceptor()).order(0);
+		registry.addInterceptor(new AnotherInterceptor())
+				.addPathPatterns("/hi")
+				.order(-1);
+	}
+
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry.addResourceHandler("/mobile/**")
+				.addResourceLocations("classpath:/mobile/")
+				.setCacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES)) //10분동안 mobile/**에 해당하는 resource들을 캐싱한다.
+				.resourceChain(true) //cache를 쓸지 말지
+				;
+	}
+
+	@Bean
+	public Jaxb2Marshaller jaxb2Marshaller() {
+		Jaxb2Marshaller jaxb2Marshaller = new Jaxb2Marshaller();
+		jaxb2Marshaller.setPackagesToScan(Person.class.getPackageName());
+		return jaxb2Marshaller;
+	}
 }
