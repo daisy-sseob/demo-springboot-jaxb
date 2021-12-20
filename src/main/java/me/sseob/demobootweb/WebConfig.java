@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.swing.plaf.TreeUI;
+import java.sql.Time;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -46,11 +46,11 @@ public class WebConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/mobile/**")
-				.addResourceLocations("classpath:/mobile/")
-				.setCacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES)) //10분동안 mobile/**에 해당하는 resource들을 캐싱한다.
+		registry.addResourceHandler("/m/**").addResourceLocations("classpath:/mobile/")
+				.setUseLastModified(true)
+				.setCacheControl(CacheControl.maxAge(100, TimeUnit.MINUTES))
 				.resourceChain(true) //cache를 쓸지 말지
-				;
+		;
 	}
 
 	@Bean
